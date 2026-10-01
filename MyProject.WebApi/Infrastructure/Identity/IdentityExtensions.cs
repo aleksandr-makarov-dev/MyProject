@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using MyProject.WebApi.Infrastructure.Identity.Entities;
 using MyProject.WebApi.Infrastructure.Persistence;
 
 namespace MyProject.WebApi.Infrastructure.Identity;

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyProject.WebApi.Application.Abstractions.Persistence;
 using MyProject.WebApi.Infrastructure.Identity;
+using MyProject.WebApi.Infrastructure.Identity.Entities;
 
 namespace MyProject.WebApi.Infrastructure.Persistence;
 

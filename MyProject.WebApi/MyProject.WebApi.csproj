@@ -16,6 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Application\Features\Authentication\Logout\" />
+      <Folder Include="Application\Features\Authentication\RefreshToken\" />
+      <Folder Include="Application\Features\Authentication\VerifyLoginByEmail\" />
       <Folder Include="Application\Features\Users\" />
       <Folder Include="Infrastructure\Persistence\Configurations\" />
       <Folder Include="Infrastructure\Persistence\Migrations\" />

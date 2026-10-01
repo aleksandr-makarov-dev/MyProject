@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationException = MyProject.WebApi.Application.Exceptions.ApplicationException;
+using MyProject.WebApi.Application.Abstract.Exceptions;
+using ApplicationException = MyProject.WebApi.Application.Abstract.Exceptions.ApplicationException;
+using UnauthorizedAccessException = MyProject.WebApi.Application.Abstract.Exceptions.UnauthorizedAccessException;
 
-namespace MyProject.WebApi.Common.Middlewares;
+namespace MyProject.WebApi.Presentation.Middlewares;
 
 public sealed class GlobalExceptionHandler(
     ILogger<GlobalExceptionHandler> logger,
@@ -18,7 +20,7 @@ public sealed class GlobalExceptionHandler(
 
         if (exception is ApplicationException applicationException)
         {
-            statusCode = (int)applicationException.StatusCode;
+            statusCode = GetHttpStatusCode(applicationException);
             detail = applicationException.Message;
         }
 
@@ -36,6 +38,18 @@ public sealed class GlobalExceptionHandler(
                 Detail = detail
             }
         });
+    }
+
+    private static int GetHttpStatusCode(ApplicationException exception)
+    {
+        return exception switch
+        {
+            NotFoundException => StatusCodes.Status404NotFound,
+            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            BadRequestException => StatusCodes.Status400BadRequest,
+            ConflictException => StatusCodes.Status409Conflict,
+            _ => StatusCodes.Status500InternalServerError
+        };
     }
 
     private static string GetProblemType(int statusCode) =>

@@ -1,14 +1,14 @@
-using MyProject.WebApi.Infrastructure.Authentication;
-using MyProject.WebApi.Infrastructure.Identity;
-using MyProject.WebApi.Infrastructure.Persistence;
+using MyProject.WebApi.Application;
+using MyProject.WebApi.Infrastructure;
+using MyProject.WebApi.Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddPersistenceLayer(builder.Configuration);
-builder.Services.AddIdentityLayer();
-builder.Services.AddAuthenticationLayer(builder.Configuration);
+builder.Services.AddInfrastructureLayer(builder.Configuration);
+builder.Services.AddApplicationLayer();
+builder.Services.AddPresentationLayer();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

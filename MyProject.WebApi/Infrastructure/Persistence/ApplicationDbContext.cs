@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyProject.WebApi.Application.Abstractions;
+using MyProject.WebApi.Application.Abstract.Interfaces;
 using MyProject.WebApi.Infrastructure.Identity;
 
 namespace MyProject.WebApi.Infrastructure.Persistence;

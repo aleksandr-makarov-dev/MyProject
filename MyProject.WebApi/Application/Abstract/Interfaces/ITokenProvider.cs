@@ -1,6 +1,6 @@
 ﻿using MyProject.WebApi.Infrastructure.Identity;
 
-namespace MyProject.WebApi.Application.Abstractions;
+namespace MyProject.WebApi.Application.Abstract.Interfaces;
 
 public interface ITokenProvider
 {

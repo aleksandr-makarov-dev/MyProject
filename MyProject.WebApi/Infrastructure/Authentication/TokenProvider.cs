@@ -1,4 +1,4 @@
-﻿using MyProject.WebApi.Application.Abstractions;
+﻿using MyProject.WebApi.Application.Abstract.Interfaces;
 using MyProject.WebApi.Infrastructure.Identity;
 
 namespace MyProject.WebApi.Infrastructure.Authentication;

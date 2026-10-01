@@ -1,4 +1,4 @@
-﻿namespace MyProject.WebApi.Common.Extensions;
+﻿namespace MyProject.WebApi.Presentation.Extensions;
 
 public static class ConfigurationExtensions
 {

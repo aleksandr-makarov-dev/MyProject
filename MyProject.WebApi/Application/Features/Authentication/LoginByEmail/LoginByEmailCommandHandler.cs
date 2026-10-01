@@ -26,6 +26,7 @@ public sealed class LoginByEmailCommandHandler(
             existingUser = await CreateUserAsync(request.Email);
         }
 
+        // TODO: we should guarantee only one active verification challenge!!!
         var verificationChallengeId = Guid.NewGuid();
         const string verificationChallengePurpose = VerificationChallengePurposes.VerifyEmail;
         var code = verificationCodeProvider.GenerateCode();

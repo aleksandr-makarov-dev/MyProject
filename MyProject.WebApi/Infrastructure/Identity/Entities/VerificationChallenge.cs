@@ -9,6 +9,6 @@ public sealed class VerificationChallenge
     public required string CodeHash { get; init; }
     public DateTime ExpiresAtUtc { get; init; }
     public DateTime? UsedAtUtc { get; set; }
-    public int Attempts { get; init; }
+    public int Attempts { get; set; }
     public DateTime CreatedAtUtc { get; init; }
 }

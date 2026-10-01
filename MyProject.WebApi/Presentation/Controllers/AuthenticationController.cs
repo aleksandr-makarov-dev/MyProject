@@ -1,6 +1,7 @@
 ﻿using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using MyProject.WebApi.Application.Features.Authentication.LoginByEmail;
+using MyProject.WebApi.Application.Features.Authentication.VerifyLoginByEmail;
 using MyProject.WebApi.Presentation.Filters;
 
 namespace MyProject.WebApi.Presentation.Controllers;
@@ -16,5 +17,13 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
     {
         await mediator.Send(command, cancellationToken);
         return Ok();
+    }
+
+    [HttpPost("login/email/verify")]
+    public async Task<IActionResult> VerifyLoginByEmail([FromBody] VerifyLoginByEmailCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = await mediator.Send(command, cancellationToken);
+        return Ok(new { UserId = userId });
     }
 }

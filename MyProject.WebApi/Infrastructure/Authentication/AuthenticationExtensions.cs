@@ -1,0 +1,62 @@
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using MyProject.WebApi.Common.Abstractions;
+using MyProject.WebApi.Common.Extensions;
+using MyProject.WebApi.Infrastructure.Authentication.ExternalProviders;
+
+namespace MyProject.WebApi.Infrastructure.Authentication;
+
+public static class AuthenticationExtensions
+{
+    public static void AddAuthenticationLayer(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<RefreshTokenOptions>()
+            .Bind(configuration.GetSection(RefreshTokenOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddScoped<ITokenProvider, TokenProvider>();
+
+        var jwtOptions = configuration.GetSectionOrThrow<JwtOptions>(JwtOptions.SectionName);
+        var googleOptions = configuration.GetSectionOrThrow<GoogleOptions>(JwtOptions.SectionName);
+
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.MapInboundClaims = false;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                    ClockSkew = TimeSpan.Zero,
+                };
+            })
+            .AddCookie(IdentityConstants.ExternalScheme)
+            .AddGoogle(options =>
+            {
+                options.ClientId = googleOptions.ClientId;
+                options.ClientSecret = googleOptions.ClientSecret;
+            });
+
+        services.AddAuthorization();
+    }
+}

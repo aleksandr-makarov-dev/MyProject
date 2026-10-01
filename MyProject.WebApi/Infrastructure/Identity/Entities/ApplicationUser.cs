@@ -4,4 +4,5 @@ namespace MyProject.WebApi.Infrastructure.Identity.Entities;
 
 public sealed class ApplicationUser : IdentityUser<Guid>
 {
+    public ICollection<VerificationChallenge> VerificationChallenges { get; set; } = [];
 }

@@ -1,5 +1,10 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MyProject.WebApi.Application;
+using MyProject.WebApi.Application.Authorization;
 using MyProject.WebApi.Infrastructure;
+using MyProject.WebApi.Infrastructure.Identity.Entities;
+using MyProject.WebApi.Infrastructure.Persistence;
 using MyProject.WebApi.Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,14 +17,35 @@ builder.Services.AddPresentationLayer();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// TODO: refactor later
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+    await dbContext.Database.MigrateAsync();
+
+    if (!await roleManager.RoleExistsAsync(Roles.Administrator))
+    {
+        await roleManager.CreateAsync(new ApplicationRole(Roles.Administrator));
+    }
+
+    if (!await roleManager.RoleExistsAsync(Roles.User))
+    {
+        await roleManager.CreateAsync(new ApplicationRole(Roles.User));
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseExceptionHandler();

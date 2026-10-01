@@ -1,5 +1,14 @@
 ﻿namespace MyProject.WebApi.Infrastructure.Identity.Entities;
 
-public class VerificationChallenge
+public sealed class VerificationChallenge
 {
+    public Guid Id { get; init; }
+    public Guid UserId { get; init; }
+    public ApplicationUser? User { get; init; }
+    public required string Purpose { get; init; }
+    public required string CodeHash { get; init; }
+    public DateTime ExpiresAtUtc { get; init; }
+    public DateTime? UsedAtUtc { get; set; }
+    public int Attempts { get; init; }
+    public DateTime CreatedAtUtc { get; init; }
 }

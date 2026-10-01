@@ -1,6 +1,8 @@
-﻿namespace MyProject.WebApi.Application.Features.Authentication.LoginByEmail;
+﻿using Mediator;
 
-public record LoginByEmailCommand
+namespace MyProject.WebApi.Application.Features.Authentication.LoginByEmail;
+
+public record LoginByEmailCommand : IRequest
 {
-    
+    public required string Email { get; init; }
 }

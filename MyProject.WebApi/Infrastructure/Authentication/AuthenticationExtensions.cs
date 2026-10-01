@@ -22,10 +22,16 @@ public static class AuthenticationExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<VerificationCodeOptions>()
+            .Bind(configuration.GetSection(VerificationCodeOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddScoped<ITokenProvider, TokenProvider>();
+        services.AddScoped<IVerificationCodeProvider, VerificationCodeProvider>();
 
         var jwtOptions = configuration.GetSectionOrThrow<JwtOptions>(JwtOptions.SectionName);
-        var googleOptions = configuration.GetSectionOrThrow<GoogleOptions>(JwtOptions.SectionName);
+        var googleOptions = configuration.GetSectionOrThrow<GoogleOptions>(GoogleOptions.SectionName);
 
         services.AddAuthentication(options =>
             {

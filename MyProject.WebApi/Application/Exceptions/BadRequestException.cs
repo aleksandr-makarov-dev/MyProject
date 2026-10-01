@@ -1,5 +1,5 @@
 using System.Net;
 
-namespace MyProject.WebApi.Common.Exceptions;
+namespace MyProject.WebApi.Application.Exceptions;
 
 public sealed class BadRequestException(string? message) : ApplicationException(message, HttpStatusCode.BadRequest);

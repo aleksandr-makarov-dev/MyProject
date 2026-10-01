@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace MyProject.WebApi.Common.Exceptions;
+namespace MyProject.WebApi.Application.Exceptions;
 
 public class ApplicationException : Exception
 {

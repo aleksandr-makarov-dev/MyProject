@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyProject.WebApi.Common.Abstractions;
+using MyProject.WebApi.Application.Abstractions;
 
 namespace MyProject.WebApi.Infrastructure.Persistence;
 

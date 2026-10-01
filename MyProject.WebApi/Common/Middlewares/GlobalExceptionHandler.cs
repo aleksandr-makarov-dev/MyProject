@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationException = MyProject.WebApi.Common.Exceptions.ApplicationException;
+using ApplicationException = MyProject.WebApi.Application.Exceptions.ApplicationException;
 
 namespace MyProject.WebApi.Common.Middlewares;
 

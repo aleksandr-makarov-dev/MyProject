@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace MyProject.WebApi.Common.Filters;
+namespace MyProject.WebApi.Presentation.Filters;
 
 public sealed class ValidationFilter<T>(IEnumerable<IValidator<T>> validators) : IAsyncActionFilter
 {

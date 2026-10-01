@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using MyProject.WebApi.Common.Abstractions;
+using MyProject.WebApi.Application.Abstractions;
 using MyProject.WebApi.Common.Extensions;
 using MyProject.WebApi.Infrastructure.Authentication.ExternalProviders;
 

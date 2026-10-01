@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace MyProject.WebApi.Common.Filters;
+namespace MyProject.WebApi.Presentation.Filters;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public sealed class ValidateAttribute(Type type)

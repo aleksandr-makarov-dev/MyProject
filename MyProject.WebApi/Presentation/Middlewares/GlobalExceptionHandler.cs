@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MyProject.WebApi.Application.Abstract.Exceptions;
-using ApplicationException = MyProject.WebApi.Application.Abstract.Exceptions.ApplicationException;
-using UnauthorizedAccessException = MyProject.WebApi.Application.Abstract.Exceptions.UnauthorizedAccessException;
+using MyProject.WebApi.Application.Exceptions;
+using ApplicationException = MyProject.WebApi.Application.Exceptions.ApplicationException;
+using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Presentation.Middlewares;
 

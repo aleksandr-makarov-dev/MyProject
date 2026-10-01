@@ -1,4 +1,4 @@
-namespace MyProject.WebApi.Application.Abstract.Exceptions;
+namespace MyProject.WebApi.Application.Exceptions;
 
 public class ApplicationException : Exception
 {

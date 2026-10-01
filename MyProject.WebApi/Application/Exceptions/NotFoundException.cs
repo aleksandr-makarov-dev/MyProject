@@ -1,4 +1,4 @@
-namespace MyProject.WebApi.Application.Abstract.Exceptions;
+namespace MyProject.WebApi.Application.Exceptions;
 
 public sealed class NotFoundException(string identifier, object key)
     : ApplicationException($"{identifier} with id {key} not found");

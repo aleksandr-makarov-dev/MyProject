@@ -4,5 +4,5 @@ namespace MyProject.WebApi.Application.Features.Authentication.RotateRefreshToke
 
 public sealed record RotateRefreshTokenCommand : IRequest<RefreshTokenResponse>
 {
-    public required string Token { get; set; }
+    public required string RefreshToken { get; set; }
 };

@@ -26,7 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Application\Features\Authentication\Logout\" />
       <Folder Include="Application\Features\Users\GetMyProfile\" />
       <Folder Include="Infrastructure\Persistence\Migrations\" />
     </ItemGroup>

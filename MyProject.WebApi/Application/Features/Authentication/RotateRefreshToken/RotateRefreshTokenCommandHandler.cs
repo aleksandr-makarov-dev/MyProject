@@ -26,7 +26,7 @@ public sealed class RotateRefreshTokenCommandHandler(
     {
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
 
-        var refreshTokenAsBytes = Convert.FromBase64String(request.Token);
+        var refreshTokenAsBytes = Convert.FromBase64String(request.RefreshToken);
         var tokenHash = Convert.ToHexString(SHA256.HashData(refreshTokenAsBytes));
 
         var refreshToken = await dbContext.RefreshTokens

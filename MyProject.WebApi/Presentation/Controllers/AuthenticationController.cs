@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyProject.WebApi.Application.Features.Authentication.LoginByEmail;
 using MyProject.WebApi.Application.Features.Authentication.LoginByExternalProvider;
+using MyProject.WebApi.Application.Features.Authentication.Logout;
 using MyProject.WebApi.Application.Features.Authentication.RotateRefreshToken;
 using MyProject.WebApi.Application.Features.Authentication.VerifyLoginByEmail;
 using MyProject.WebApi.Domain.Users;
@@ -96,5 +97,13 @@ public class AuthenticationController(
     {
         var result = await mediator.Send(request, cancellationToken);
         return Ok(result);
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutCommand request,
+        CancellationToken cancellationToken = default)
+    {
+        await mediator.Send(request, cancellationToken);
+        return NoContent();
     }
 }

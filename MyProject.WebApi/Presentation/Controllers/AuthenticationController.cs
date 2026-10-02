@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyProject.WebApi.Application.Features.Authentication.LoginByEmail;
 using MyProject.WebApi.Application.Features.Authentication.LoginByExternalProvider;
+using MyProject.WebApi.Application.Features.Authentication.RotateRefreshToken;
 using MyProject.WebApi.Application.Features.Authentication.VerifyLoginByEmail;
 using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Presentation.Filters;
@@ -86,6 +87,14 @@ public class AuthenticationController(
         };
 
         var result = await mediator.Send(command, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RotateRefreshTokenCommand request,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(request, cancellationToken);
         return Ok(result);
     }
 }

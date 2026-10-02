@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using MyProject.WebApi.Application.Abstractions.Persistence;
 using MyProject.WebApi.Domain.Users;
 
@@ -9,6 +10,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     : IdentityDbContext<User, Role, Guid>(options), IApplicationDbContext
 {
     public DbSet<VerificationChallenge> VerificationChallenges => Set<VerificationChallenge>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
+        Database.BeginTransactionAsync(cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

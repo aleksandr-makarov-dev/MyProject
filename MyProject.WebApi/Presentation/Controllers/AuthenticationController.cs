@@ -23,7 +23,7 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> VerifyLoginByEmail([FromBody] VerifyLoginByEmailCommand command,
         CancellationToken cancellationToken = default)
     {
-        var userId = await mediator.Send(command, cancellationToken);
-        return Ok(new { UserId = userId });
+        var result = await mediator.Send(command, cancellationToken);
+        return Ok(result);
     }
 }

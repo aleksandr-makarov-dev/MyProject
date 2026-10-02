@@ -1,11 +1,14 @@
-﻿using Mediator;
+﻿using System.Security.Cryptography;
+using Mediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MyProject.WebApi.Application.Abstractions.Authentication;
 using MyProject.WebApi.Application.Abstractions.Persistence;
 using MyProject.WebApi.Domain.Users;
-using MyProject.WebApi.Infrastructure.Identity;
-using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
+using MyProject.WebApi.Infrastructure.Authentication;
+using UnauthorizedAccessException =
+    MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Application.Features.Authentication.VerifyLoginByEmail;
 
@@ -13,28 +16,36 @@ public sealed class VerifyLoginByEmailCommandHandler(
     UserManager<User> userManager,
     IApplicationDbContext dbContext,
     IVerificationCodeProvider verificationCodeProvider,
+    ITokenProvider tokenProvider,
+    IOptions<RefreshTokenOptions> refreshTokenOptions,
     TimeProvider timeProvider,
-    ILogger<VerifyLoginByEmailCommandHandler> logger) : IRequestHandler<VerifyLoginByEmailCommand, Guid>
+    ILogger<VerifyLoginByEmailCommandHandler> logger)
+    : IRequestHandler<VerifyLoginByEmailCommand, VerifyLoginByEmailResponse>
 {
-    public async ValueTask<Guid> Handle(VerifyLoginByEmailCommand request, CancellationToken cancellationToken)
+    private const int MaxVerificationAttempts = 5;
+
+    public async ValueTask<VerifyLoginByEmailResponse> Handle(
+        VerifyLoginByEmailCommand request,
+        CancellationToken cancellationToken)
     {
         var existingUser = await userManager.FindByEmailAsync(request.Email);
 
         if (existingUser is null)
         {
-            logger.LogInformation("User with email {Email} not found", request.Email);
+            logger.LogInformation("Login verification failed because user was not found.");
             throw new UnauthorizedAccessException("Invalid email address or code.");
         }
 
         const string purpose = VerificationChallengePurposes.VerifyEmail;
 
-        // TODO: we should guarantee only one active verification challenge!!!
         var verificationChallenge = await dbContext.VerificationChallenges
-            .SingleOrDefaultAsync(x =>
-                x.UserId == existingUser.Id &&
-                x.Purpose == purpose &&
-                x.UsedAtUtc == null, cancellationToken);
-
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                x =>
+                    x.UserId == existingUser.Id &&
+                    x.Purpose == purpose &&
+                    x.UsedAtUtc == null,
+                cancellationToken);
 
         if (verificationChallenge is null)
         {
@@ -52,36 +63,112 @@ public sealed class VerifyLoginByEmailCommandHandler(
             throw new UnauthorizedAccessException("Invalid email address or code.");
         }
 
-        if (verificationChallenge.Attempts >= 5)
+        if (verificationChallenge.Attempts >= MaxVerificationAttempts)
         {
             logger.LogInformation("Verification challenge {ChallengeId} exceeded maximum attempts.",
                 verificationChallenge.Id);
             throw new UnauthorizedAccessException("Invalid email address or code.");
         }
 
-        var validationResult = verificationCodeProvider.VerifyCode(verificationChallenge.Id, existingUser.Id, purpose,
+        var isValidCode = verificationCodeProvider.VerifyCode(verificationChallenge.Id, existingUser.Id, purpose,
             request.Code, verificationChallenge.CodeHash);
 
-        if (!validationResult)
+        if (!isValidCode)
         {
-            // Increase number of invalid attempts
-            verificationChallenge.Attempts++;
-            await dbContext.SaveChangesAsync(cancellationToken);
+            var rows = await dbContext.VerificationChallenges
+                .Where(x =>
+                    x.Id == verificationChallenge.Id &&
+                    x.UserId == existingUser.Id &&
+                    x.Purpose == purpose &&
+                    x.UsedAtUtc == null &&
+                    x.ExpiresAtUtc > utcNow &&
+                    x.Attempts < MaxVerificationAttempts)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.Attempts, x => x.Attempts + 1),
+                    cancellationToken);
 
-            logger.LogInformation("Invalid verification code for challenge {ChallengeId}. Attempt {Attempts}.",
-                verificationChallenge.Id, verificationChallenge.Attempts);
+            if (rows == 1)
+            {
+                logger.LogInformation("Invalid verification code for challenge {ChallengeId}.",
+                    verificationChallenge.Id);
+            }
+            else
+            {
+                logger.LogInformation(
+                    "Verification challenge {ChallengeId} could not record an attempt because its state changed.",
+                    verificationChallenge.Id);
+            }
 
-            throw new UnauthorizedAccessException("Invalid email address or code.");
+            throw new UnauthorizedAccessException(
+                "Invalid email address or code.");
         }
 
-        existingUser.EmailConfirmed = true;
-        // Mark verification challenge as used.
-        verificationChallenge.UsedAtUtc = utcNow;
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var userRoles = await userManager.GetRolesAsync(existingUser);
 
-        // TODO: create refresh and access token
+        var refreshTokenString = tokenProvider.GetRefreshToken();
+        var refreshTokenBytes = Convert.FromBase64String(refreshTokenString);
 
-        // TODO: return usedId from testing purposes
-        return existingUser.Id;
+        var tokenSubject = new TokenSubject
+        {
+            UserId = existingUser.Id,
+            Roles = [.. userRoles]
+        };
+
+        var accessToken = tokenProvider.GetAccessToken(tokenSubject);
+
+        await using var transaction =
+            await dbContext.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            var rows = await dbContext.VerificationChallenges
+                .Where(x =>
+                    x.Id == verificationChallenge.Id &&
+                    x.UserId == existingUser.Id &&
+                    x.Purpose == purpose &&
+                    x.UsedAtUtc == null &&
+                    x.ExpiresAtUtc > utcNow &&
+                    x.Attempts < MaxVerificationAttempts)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.UsedAtUtc, utcNow),
+                    cancellationToken);
+
+            if (rows != 1)
+            {
+                logger.LogInformation("Verification challenge {ChallengeId} could not be consumed.",
+                    verificationChallenge.Id);
+                throw new UnauthorizedAccessException("Invalid email address or code.");
+            }
+
+            existingUser.EmailConfirmed = true;
+
+            var refreshToken = new RefreshToken
+            {
+                UserId = existingUser.Id,
+                TokenHash = Convert.ToHexString(SHA256.HashData(refreshTokenBytes)),
+                GroupId = Guid.NewGuid(),
+                ExpiresAtUtc = utcNow.Add(refreshTokenOptions.Value.Expiration),
+                IsRevoked = false
+            };
+
+            dbContext.RefreshTokens.Add(refreshToken);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+
+        return new VerifyLoginByEmailResponse
+        {
+            RefreshToken = refreshTokenString,
+            AccessToken = accessToken
+        };
     }
 }

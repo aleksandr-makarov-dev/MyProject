@@ -7,7 +7,6 @@ using MyProject.WebApi.Application.Abstractions.Persistence;
 using MyProject.WebApi.Application.Exceptions;
 using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Infrastructure.Authentication;
-using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Application.Features.Authentication.LoginByExternalProvider;
 
@@ -45,7 +44,7 @@ public sealed class
             if (!createUserResult.Succeeded)
             {
                 var error = createUserResult.Errors.FirstOrDefault();
-                throw new UnauthorizedAccessException(error?.Description ?? "Failed to create user.");
+                throw new UnauthorizedException(error?.Description ?? "Failed to create user.");
             }
 
             var addToRoleResult = await userManager.AddToRoleAsync(user, Roles.User);
@@ -53,7 +52,7 @@ public sealed class
             if (!addToRoleResult.Succeeded)
             {
                 var error = addToRoleResult.Errors.FirstOrDefault();
-                throw new UnauthorizedAccessException(error?.Description ?? "Failed to add user to role.");
+                throw new UnauthorizedException(error?.Description ?? "Failed to add user to role.");
             }
 
             existingUser = user;

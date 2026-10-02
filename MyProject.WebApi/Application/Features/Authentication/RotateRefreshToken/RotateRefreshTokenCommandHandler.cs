@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyProject.WebApi.Application.Abstractions.Authentication;
 using MyProject.WebApi.Application.Abstractions.Persistence;
+using MyProject.WebApi.Application.Exceptions;
 using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Infrastructure.Authentication;
-using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Application.Features.Authentication.RotateRefreshToken;
 
@@ -35,7 +35,7 @@ public sealed class RotateRefreshTokenCommandHandler(
         if (refreshToken is null)
         {
             logger.LogWarning("Refresh token was not found.");
-            throw new UnauthorizedAccessException("Invalid refresh token.");
+            throw new UnauthorizedException("Invalid refresh token.");
         }
 
         if (refreshToken.IsRevoked)
@@ -55,7 +55,7 @@ public sealed class RotateRefreshTokenCommandHandler(
                     setters.SetProperty(x => x.UpdatedAtUtc, utcNow);
                 }, cancellationToken);
 
-            throw new UnauthorizedAccessException("Invalid refresh token.");
+            throw new UnauthorizedException("Invalid refresh token.");
         }
 
         var user = await userManager.FindByIdAsync(
@@ -66,14 +66,14 @@ public sealed class RotateRefreshTokenCommandHandler(
             logger.LogWarning("Expired refresh token used by user {UserId}. Token expired at {ExpiresAtUtc}.",
                 refreshToken.UserId, refreshToken.ExpiresAtUtc);
 
-            throw new UnauthorizedAccessException("Invalid refresh token.");
+            throw new UnauthorizedException("Invalid refresh token.");
         }
 
         if (user is null)
         {
             logger.LogWarning("User {UserId} associated with refresh token was not found.", refreshToken.UserId);
 
-            throw new UnauthorizedAccessException("Invalid refresh token.");
+            throw new UnauthorizedException("Invalid refresh token.");
         }
 
         var roles = await userManager.GetRolesAsync(user);

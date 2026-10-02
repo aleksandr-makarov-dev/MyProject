@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MyProject.WebApi.Application.Exceptions;
 using ApplicationException = MyProject.WebApi.Application.Exceptions.ApplicationException;
-using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Presentation.Middlewares;
 
@@ -45,7 +44,7 @@ public sealed class GlobalExceptionHandler(
         return exception switch
         {
             NotFoundException => StatusCodes.Status404NotFound,
-            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            UnauthorizedException => StatusCodes.Status401Unauthorized,
             BadRequestException => StatusCodes.Status400BadRequest,
             ConflictException => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError

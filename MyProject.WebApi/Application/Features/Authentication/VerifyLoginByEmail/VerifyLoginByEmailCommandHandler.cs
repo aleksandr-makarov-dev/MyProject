@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using MyProject.WebApi.Application.Abstractions.Authentication;
 using MyProject.WebApi.Application.Abstractions.Persistence;
+using MyProject.WebApi.Application.Exceptions;
 using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Infrastructure.Authentication;
 using MyProject.WebApi.Infrastructure.Identity;
-using UnauthorizedAccessException =
-    MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Application.Features.Authentication.VerifyLoginByEmail;
 
@@ -31,7 +30,7 @@ public sealed class VerifyLoginByEmailCommandHandler(
         if (existingUser is null)
         {
             logger.LogInformation("Login verification failed because user was not found.");
-            throw new UnauthorizedAccessException("Invalid email address or code.");
+            throw new UnauthorizedException("Invalid email address or code.");
         }
 
         var isValid = await userManager.VerifyUserTokenAsync(existingUser, TokenProviders.Otp,
@@ -40,7 +39,7 @@ public sealed class VerifyLoginByEmailCommandHandler(
         if (!isValid)
         {
             logger.LogInformation("Login verification failed because code was invalid.");
-            throw new UnauthorizedAccessException("Invalid email address or code.");
+            throw new UnauthorizedException("Invalid email address or code.");
         }
 
         var userRoles = await userManager.GetRolesAsync(existingUser);

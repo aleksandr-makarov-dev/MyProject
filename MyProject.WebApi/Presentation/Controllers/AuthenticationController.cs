@@ -2,6 +2,7 @@
 using Mediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MyProject.WebApi.Application.Exceptions;
 using MyProject.WebApi.Application.Features.Authentication.LoginByEmail;
 using MyProject.WebApi.Application.Features.Authentication.LoginByExternalProvider;
 using MyProject.WebApi.Application.Features.Authentication.Logout;
@@ -9,7 +10,6 @@ using MyProject.WebApi.Application.Features.Authentication.RotateRefreshToken;
 using MyProject.WebApi.Application.Features.Authentication.VerifyLoginByEmail;
 using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Presentation.Filters;
-using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Presentation.Controllers;
 
@@ -51,7 +51,7 @@ public class AuthenticationController(
 
         if (providers.All(x => x.Name != provider))
         {
-            throw new UnauthorizedAccessException("Provider is not supported");
+            throw new UnauthorizedException("Provider is not supported");
         }
 
         var redirectUrl = Url.Action(nameof(LoginUserByExternalProviderCallback), "Authentication");
@@ -69,7 +69,7 @@ public class AuthenticationController(
         {
             logger.LogWarning("External login callback received without external login information.");
 
-            throw new UnauthorizedAccessException("No external login info found.");
+            throw new UnauthorizedException("No external login info found.");
         }
 
         var provider = externalLoginInfo.LoginProvider;
@@ -82,7 +82,7 @@ public class AuthenticationController(
             logger.LogWarning("External login callback for provider {Provider} did not contain an email claim.",
                 provider);
 
-            throw new UnauthorizedAccessException("No email claim found.");
+            throw new UnauthorizedException("No email claim found.");
         }
 
         var command = new LoginByExternalProviderCommand
@@ -107,7 +107,7 @@ public class AuthenticationController(
 
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
-            throw new UnauthorizedAccessException("Refresh token is required.");
+            throw new UnauthorizedException("Refresh token is required.");
         }
 
         var result = await mediator.Send(new RotateRefreshTokenCommand { RefreshToken = refreshToken },

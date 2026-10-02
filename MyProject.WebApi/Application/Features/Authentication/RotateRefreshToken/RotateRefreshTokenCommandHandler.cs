@@ -51,7 +51,7 @@ public sealed class RotateRefreshTokenCommandHandler(
                 {
                     setters.SetProperty(x => x.IsRevoked, true);
                     setters.SetProperty(x => x.RevokedAtUtc, utcNow);
-                    setters.SetProperty(x => x.RevokeReason, "token_reuse_detected");
+                    setters.SetProperty(x => x.RevokeReason, RefreshTokenRevokeReasons.ReuseDetected);
                     setters.SetProperty(x => x.UpdatedAtUtc, utcNow);
                 }, cancellationToken);
 
@@ -91,7 +91,7 @@ public sealed class RotateRefreshTokenCommandHandler(
 
         refreshToken.IsRevoked = true;
         refreshToken.RevokedAtUtc = utcNow;
-        refreshToken.RevokeReason = "token_refresh";
+        refreshToken.RevokeReason = RefreshTokenRevokeReasons.Rotation;
 
         var newRefreshToken = new RefreshToken
         {

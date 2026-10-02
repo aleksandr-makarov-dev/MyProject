@@ -28,6 +28,7 @@ public class AuthenticationController(
     }
 
     [HttpPost("login/email/verify")]
+    [Validate(typeof(VerifyLoginByEmailCommand))]
     public async Task<IActionResult> VerifyLoginByEmail([FromBody] VerifyLoginByEmailCommand command,
         CancellationToken cancellationToken = default)
     {

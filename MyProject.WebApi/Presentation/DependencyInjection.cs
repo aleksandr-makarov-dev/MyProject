@@ -27,12 +27,6 @@ public static class DependencyInjection
     {
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "Taskify API",
-                Version = "v1"
-            });
-
             options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.Http,

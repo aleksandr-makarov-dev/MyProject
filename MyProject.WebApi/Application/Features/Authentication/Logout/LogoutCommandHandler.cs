@@ -15,6 +15,7 @@ public sealed class LogoutCommandHandler(IApplicationDbContext dbContext, TimePr
         var tokenHash = Convert.ToHexString(SHA256.HashData(refreshTokenAsBytes));
 
         var refreshToken = await dbContext.RefreshTokens
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
 
         if (refreshToken is null)

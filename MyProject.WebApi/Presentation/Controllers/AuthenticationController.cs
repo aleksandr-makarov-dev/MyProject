@@ -20,6 +20,8 @@ public class AuthenticationController(
     SignInManager<User> signInManager,
     ILogger<AuthenticationController> logger) : ControllerBase
 {
+    private const string RefreshTokenCookieName = "refresh_token";
+
     [HttpPost("login/email")]
     [Validate(typeof(LoginByEmailCommand))]
     public async Task<IActionResult> LoginByEmail([FromBody] LoginByEmailCommand command,
@@ -35,7 +37,10 @@ public class AuthenticationController(
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(command, cancellationToken);
-        return Ok(result);
+
+        SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpiresAtUtc);
+
+        return Ok(new { result.AccessToken });
     }
 
     [HttpGet("login/external/{provider}")]
@@ -88,22 +93,66 @@ public class AuthenticationController(
         };
 
         var result = await mediator.Send(command, cancellationToken);
-        return Ok(result);
+
+        SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpiresAtUtc);
+
+        return Ok(new { result.AccessToken });
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RotateRefreshTokenCommand request,
+    public async Task<IActionResult> RefreshToken(
         CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(request, cancellationToken);
-        return Ok(result);
+        var refreshToken = GetRefreshTokenCookieValue();
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            throw new UnauthorizedAccessException("Refresh token is required.");
+        }
+
+        var result = await mediator.Send(new RotateRefreshTokenCommand { RefreshToken = refreshToken },
+            cancellationToken);
+
+        SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpiresAtUtc);
+
+        return Ok(new { result.AccessToken });
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] LogoutCommand request,
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken = default)
     {
-        await mediator.Send(request, cancellationToken);
+        var refreshToken = GetRefreshTokenCookieValue();
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return NoContent();
+        }
+
+        await mediator.Send(new LogoutCommand { RefreshToken = refreshToken }, cancellationToken);
+
+        RemoveRefreshTokenCookie();
+
         return NoContent();
+    }
+
+    private string? GetRefreshTokenCookieValue()
+    {
+        return Request.Cookies[RefreshTokenCookieName];
+    }
+
+    private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAtUtc)
+    {
+        Response.Cookies.Append(RefreshTokenCookieName, refreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = expiresAtUtc,
+        });
+    }
+
+    private void RemoveRefreshTokenCookie()
+    {
+        Response.Cookies.Delete(RefreshTokenCookieName);
     }
 }

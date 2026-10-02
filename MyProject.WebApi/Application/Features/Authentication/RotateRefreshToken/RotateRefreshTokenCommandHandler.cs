@@ -98,6 +98,7 @@ public sealed class RotateRefreshTokenCommandHandler(
             UserId = refreshToken.UserId,
             TokenHash = Convert.ToHexString(SHA256.HashData(newRefreshTokenBytes)),
             GroupId = refreshToken.GroupId,
+            CreatedAtUtc = utcNow,
             ExpiresAtUtc = utcNow.Add(refreshTokenOptions.Value.Expiration),
             IsRevoked = false
         };
@@ -108,8 +109,9 @@ public sealed class RotateRefreshTokenCommandHandler(
 
         return new RefreshTokenResponse
         {
+            RefreshToken = newRefreshTokenString,
+            RefreshTokenExpiresAtUtc = refreshToken.ExpiresAtUtc,
             AccessToken = newAccessToken,
-            RefreshToken = newRefreshTokenString
         };
     }
 }

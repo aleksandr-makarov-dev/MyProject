@@ -77,6 +77,7 @@ public sealed class VerifyLoginByEmailCommandHandler(
         return new VerifyLoginByEmailResponse
         {
             RefreshToken = refreshTokenString,
+            RefreshTokenExpiresAtUtc = refreshToken.ExpiresAtUtc,
             AccessToken = accessToken
         };
     }

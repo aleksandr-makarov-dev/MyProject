@@ -3,5 +3,6 @@
 public sealed record RefreshTokenResponse
 {
     public required string RefreshToken { get; init; }
+    public DateTime RefreshTokenExpiresAtUtc { get; init; }
     public required string AccessToken { get; init; }
 };

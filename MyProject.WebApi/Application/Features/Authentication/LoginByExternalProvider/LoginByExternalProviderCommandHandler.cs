@@ -85,9 +85,9 @@ public sealed class
         };
 
         var accessToken = tokenProvider.GetAccessToken(tokenSubject);
-        
+
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        
+
         existingUser.EmailConfirmed = true;
 
         var refreshToken = new RefreshToken
@@ -107,6 +107,7 @@ public sealed class
         return new LoginByExternalProviderResponse
         {
             RefreshToken = refreshTokenString,
+            RefreshTokenExpiresAtUtc = refreshToken.ExpiresAtUtc,
             AccessToken = accessToken
         };
     }

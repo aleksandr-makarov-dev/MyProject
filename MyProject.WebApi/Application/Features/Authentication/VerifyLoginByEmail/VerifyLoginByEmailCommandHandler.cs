@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 using Mediator;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyProject.WebApi.Application.Abstractions.Authentication;
 using MyProject.WebApi.Application.Abstractions.Persistence;

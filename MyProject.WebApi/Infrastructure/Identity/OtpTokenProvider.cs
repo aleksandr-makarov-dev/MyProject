@@ -10,7 +10,7 @@ namespace MyProject.WebApi.Infrastructure.Identity;
 public sealed class OtpTokenProvider<TUser>(
     IApplicationDbContext dbContext,
     IVerificationCodeProvider verificationCodeProvider,
-    IOptions<OtpTokenOptions> options,
+    IOptions<OtpTokenProviderOptions> options,
     TimeProvider timeProvider)
     : IUserTwoFactorTokenProvider<TUser> where TUser : class
 {
@@ -48,7 +48,7 @@ public sealed class OtpTokenProvider<TUser>(
                 CodeHash = codeHash,
                 Attempts = 0,
                 CreatedAtUtc = utcNow,
-                ExpiresAtUtc = utcNow.Add(options.Value.Expires),
+                ExpiresAtUtc = utcNow.Add(options.Value.Expiration),
             };
 
             dbContext.VerificationChallenges.Add(verificationChallenge);
@@ -70,6 +70,8 @@ public sealed class OtpTokenProvider<TUser>(
         var userIdString = await manager.GetUserIdAsync(user);
         var userId = Guid.Parse(userIdString);
 
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
+
         var verificationChallenge = await dbContext.VerificationChallenges
             .SingleOrDefaultAsync(x =>
                 x.UserId == userId &&
@@ -82,7 +84,15 @@ public sealed class OtpTokenProvider<TUser>(
             return false;
         }
 
-        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
+        if (verificationChallenge.Attempts >= options.Value.MaxAttempts)
+        {
+            return false;
+        }
+
+        if (verificationChallenge.ExpiresAtUtc <= utcNow)
+        {
+            return false;
+        }
 
         var isValid = verificationCodeProvider.VerifyCode(verificationChallenge.Id.ToString(), userIdString, purpose,
             token, verificationChallenge.CodeHash);

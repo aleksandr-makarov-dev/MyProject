@@ -8,8 +8,8 @@ public static class IdentityExtensions
 {
     public static void AddIdentityLayer(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<OtpTokenOptions>()
-            .Bind(configuration.GetSection(OtpTokenOptions.SectionName))
+        services.AddOptions<OtpTokenProviderOptions>()
+            .Bind(configuration.GetSection(OtpTokenProviderOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 

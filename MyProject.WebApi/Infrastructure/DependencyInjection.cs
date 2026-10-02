@@ -9,9 +9,9 @@ public static class DependencyInjection
     public static void AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(TimeProvider.System);
-        
+
         services.AddPersistenceLayer(configuration);
-        services.AddIdentityLayer();
+        services.AddIdentityLayer(configuration);
         services.AddAuthenticationLayer(configuration);
     }
 }

@@ -12,16 +12,17 @@ public sealed class VerificationCodeProvider(IOptions<VerificationCodeOptions> o
         return RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
     }
 
-    public string ComputeHash(Guid verificationChallengeId, Guid userId, string purpose, string code)
+    public string ComputeHash(string verificationChallengeId, string userId, string purpose, string code)
     {
-        var payload = $"{verificationChallengeId:N}|{userId:N}|{purpose}|{code}";
+        var payload = $"{verificationChallengeId}|{userId}|{purpose}|{code}";
 
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(options.Value.SecretKey));
 
         return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(payload)));
     }
 
-    public bool VerifyCode(Guid verificationChallengeId, Guid userId, string purpose, string code, string expectedHash)
+    public bool VerifyCode(string verificationChallengeId, string userId, string purpose, string code,
+        string expectedHash)
     {
         var actualHash = ComputeHash(verificationChallengeId, userId, purpose, code);
 

@@ -6,8 +6,13 @@ namespace MyProject.WebApi.Infrastructure.Identity;
 
 public static class IdentityExtensions
 {
-    public static void AddIdentityLayer(this IServiceCollection services)
+    public static void AddIdentityLayer(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddOptions<OtpTokenOptions>()
+            .Bind(configuration.GetSection(OtpTokenOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddIdentityCore<User>(options =>
             {
                 options.Password.RequiredLength = 6;
@@ -25,6 +30,7 @@ public static class IdentityExtensions
             .AddRoles<Role>()
             .AddSignInManager()
             .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddTokenProvider<OtpTokenProvider<User>>(TokenProviders.Otp);
     }
 }

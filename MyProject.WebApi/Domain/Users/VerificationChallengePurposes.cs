@@ -1,6 +1,6 @@
 ﻿namespace MyProject.WebApi.Domain.Users;
 
-public class VerificationChallengePurposes
+public static class VerificationChallengePurposes
 {
-    public const string VerifyEmail = nameof(VerifyEmail);
+    public const string VerifyEmail = "verify_email";
 }

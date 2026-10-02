@@ -85,7 +85,9 @@ public sealed class
         };
 
         var accessToken = tokenProvider.GetAccessToken(tokenSubject);
-
+        
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
+        
         existingUser.EmailConfirmed = true;
 
         var refreshToken = new RefreshToken
@@ -93,7 +95,8 @@ public sealed class
             UserId = existingUser.Id,
             TokenHash = Convert.ToHexString(SHA256.HashData(refreshTokenBytes)),
             GroupId = Guid.NewGuid(),
-            ExpiresAtUtc = timeProvider.GetUtcNow().UtcDateTime.Add(refreshTokenOptions.Value.Expiration),
+            CreatedAtUtc = utcNow,
+            ExpiresAtUtc = utcNow.Add(refreshTokenOptions.Value.Expiration),
             IsRevoked = false
         };
 

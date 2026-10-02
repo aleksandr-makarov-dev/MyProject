@@ -2,15 +2,14 @@
 using Microsoft.AspNetCore.Identity;
 using MyProject.WebApi.Application.Abstractions.Authentication;
 using MyProject.WebApi.Application.Abstractions.Persistence;
-using MyProject.WebApi.Application.Authorization;
+using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Infrastructure.Identity;
-using MyProject.WebApi.Infrastructure.Identity.Entities;
 using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Application.Features.Authentication.LoginByEmail;
 
 public sealed class LoginByEmailCommandHandler(
-    UserManager<ApplicationUser> userManager,
+    UserManager<User> userManager,
     IVerificationCodeProvider verificationCodeProvider,
     IApplicationDbContext dbContext,
     TimeProvider timeProvider,
@@ -55,9 +54,9 @@ public sealed class LoginByEmailCommandHandler(
         return Unit.Value;
     }
 
-    private async Task<ApplicationUser> CreateUserAsync(string email)
+    private async Task<User> CreateUserAsync(string email)
     {
-        var user = new ApplicationUser
+        var user = new User
         {
             UserName = email,
             Email = email,

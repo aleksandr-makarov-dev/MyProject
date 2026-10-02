@@ -1,4 +1,4 @@
-﻿namespace MyProject.WebApi.Infrastructure.Identity;
+﻿namespace MyProject.WebApi.Domain.Users;
 
 public class VerificationChallengePurposes
 {

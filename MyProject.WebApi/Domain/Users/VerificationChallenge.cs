@@ -1,10 +1,10 @@
-﻿namespace MyProject.WebApi.Infrastructure.Identity.Entities;
+﻿namespace MyProject.WebApi.Domain.Users;
 
 public sealed class VerificationChallenge
 {
     public Guid Id { get; init; }
     public Guid UserId { get; init; }
-    public ApplicationUser? User { get; init; }
+    public User? User { get; init; }
     public required string Purpose { get; init; }
     public required string CodeHash { get; init; }
     public DateTime ExpiresAtUtc { get; init; }

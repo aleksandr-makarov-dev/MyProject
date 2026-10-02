@@ -1,4 +1,4 @@
-﻿namespace MyProject.WebApi.Application.Authorization;
+﻿namespace MyProject.WebApi.Domain.Users;
 
 public static class Roles
 {

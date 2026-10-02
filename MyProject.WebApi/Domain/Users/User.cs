@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace MyProject.WebApi.Infrastructure.Identity.Entities;
+namespace MyProject.WebApi.Domain.Users;
 
-public sealed class ApplicationUser : IdentityUser<Guid>
+public sealed class User : IdentityUser<Guid>
 {
     public ICollection<VerificationChallenge> VerificationChallenges { get; set; } = [];
 }

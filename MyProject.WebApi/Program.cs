@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyProject.WebApi.Application;
-using MyProject.WebApi.Application.Authorization;
+using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Infrastructure;
-using MyProject.WebApi.Infrastructure.Identity.Entities;
 using MyProject.WebApi.Infrastructure.Persistence;
 using MyProject.WebApi.Presentation;
 
@@ -26,18 +25,18 @@ var app = builder.Build();
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
 
     await dbContext.Database.MigrateAsync();
 
     if (!await roleManager.RoleExistsAsync(Roles.Administrator))
     {
-        await roleManager.CreateAsync(new ApplicationRole(Roles.Administrator));
+        await roleManager.CreateAsync(new Role(Roles.Administrator));
     }
 
     if (!await roleManager.RoleExistsAsync(Roles.User))
     {
-        await roleManager.CreateAsync(new ApplicationRole(Roles.User));
+        await roleManager.CreateAsync(new Role(Roles.User));
     }
 }
 

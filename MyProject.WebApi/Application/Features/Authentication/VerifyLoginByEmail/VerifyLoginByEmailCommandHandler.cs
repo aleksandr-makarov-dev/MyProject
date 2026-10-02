@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyProject.WebApi.Application.Abstractions.Authentication;
 using MyProject.WebApi.Application.Abstractions.Persistence;
+using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Infrastructure.Identity;
-using MyProject.WebApi.Infrastructure.Identity.Entities;
 using UnauthorizedAccessException = MyProject.WebApi.Application.Exceptions.UnauthorizedAccessException;
 
 namespace MyProject.WebApi.Application.Features.Authentication.VerifyLoginByEmail;
 
 public sealed class VerifyLoginByEmailCommandHandler(
-    UserManager<ApplicationUser> userManager,
+    UserManager<User> userManager,
     IApplicationDbContext dbContext,
     IVerificationCodeProvider verificationCodeProvider,
     TimeProvider timeProvider,

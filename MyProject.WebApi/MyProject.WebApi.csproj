@@ -29,7 +29,6 @@
       <Folder Include="Application\Features\Authentication\Logout\" />
       <Folder Include="Application\Features\Authentication\RefreshToken\" />
       <Folder Include="Application\Features\Users\GetMyProfile\" />
-      <Folder Include="Infrastructure\Identity\Entities\" />
       <Folder Include="Infrastructure\Persistence\Migrations\" />
     </ItemGroup>
 

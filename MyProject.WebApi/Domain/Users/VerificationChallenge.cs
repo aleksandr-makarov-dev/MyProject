@@ -1,8 +1,7 @@
 ﻿namespace MyProject.WebApi.Domain.Users;
 
-public sealed class VerificationChallenge
+public sealed class VerificationChallenge : Entity
 {
-    public Guid Id { get; init; }
     public Guid UserId { get; init; }
     public User? User { get; init; }
     public required string Purpose { get; init; }

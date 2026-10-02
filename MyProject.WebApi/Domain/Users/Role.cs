@@ -2,7 +2,7 @@
 
 namespace MyProject.WebApi.Domain.Users;
 
-public sealed class Role : IdentityRole<Guid>
+public sealed class Role : IdentityRole<Guid>, IEntity
 {
     private Role()
     {

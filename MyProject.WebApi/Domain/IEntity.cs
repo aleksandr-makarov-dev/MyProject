@@ -1,6 +1,6 @@
 ﻿namespace MyProject.WebApi.Domain;
 
-public abstract class Entity : IEntity
+public interface IEntity
 {
     public Guid Id { get; set; }
 }

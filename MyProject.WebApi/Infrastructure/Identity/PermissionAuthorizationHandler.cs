@@ -7,7 +7,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        if (context.User.HasClaim("permission", requirement.Permission))
+        if (context.User.HasClaim(CustomClaimTypes.Permission, requirement.Permission))
         {
             context.Succeed(requirement);
         }

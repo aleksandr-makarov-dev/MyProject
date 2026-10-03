@@ -6,16 +6,16 @@ namespace MyProject.WebApi.Infrastructure.Identity;
 public sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> options)
     : DefaultAuthorizationPolicyProvider(options)
 {
-    private const string Prefix = "permission:";
-
     public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
-        if (!policyName.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase))
+        const string prefix = $"{CustomClaimTypes.Permission}:";
+
+        if (!policyName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
         {
             return await base.GetPolicyAsync(policyName);
         }
 
-        var permission = policyName[Prefix.Length..];
+        var permission = policyName[prefix.Length..];
 
         return new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using MyProject.WebApi.Domain.Users;
 using MyProject.WebApi.Infrastructure.Persistence;
 
@@ -32,5 +33,8 @@ public static class IdentityExtensions
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders()
             .AddTokenProvider<OtpTokenProvider<User>>(TokenProviders.Otp);
+
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
     }
 }
